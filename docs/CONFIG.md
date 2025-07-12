@@ -75,9 +75,9 @@ WORKERS=1                           # Number of worker processes
 # Connection Settings
 POSTGRES_HOST=host.docker.internal  # Database host
 POSTGRES_PORT=5432                  # Database port
-POSTGRES_DB=local_rag              # Database name
-POSTGRES_USER=dtsen                # Database username
-POSTGRES_PASSWORD=dtsen            # Database password
+POSTGRES_DB=local_rag               # Database name (current setting)
+POSTGRES_USER=postgres                # Database username
+POSTGRES_PASSWORD=postgres            # Database password
 POSTGRES_SSLMODE=disable           # SSL mode (disable/require/prefer)
 
 # Alternative: Complete URL
@@ -130,7 +130,7 @@ AI models for embeddings and text processing:
 
 ```bash
 # Model Selection
-EMBEDDING_MODEL=intfloat/multilingual-e5-base    # Embedding model (multilingual support)
+EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-mpnet-base-v2  # Current embedding model
 EXTRACTION_MODEL=asmud/cahya-indonesian-ner-tuned   # Indonesian BERT model for text extraction
 
 # Model Management
@@ -140,9 +140,9 @@ HF_TOKEN=hf_your_token_here                      # Hugging Face token (required 
 ```
 
 **Supported Embedding Models:**
-- `intfloat/multilingual-e5-base` (default) - 768 dimensions, multilingual
+- `sentence-transformers/paraphrase-multilingual-mpnet-base-v2` (current) - 768 dimensions, multilingual
+- `intfloat/multilingual-e5-base` - 768 dimensions, multilingual
 - `sentence-transformers/all-MiniLM-L6-v2` - 384 dimensions, English
-- `sentence-transformers/all-mpnet-base-v2` - 768 dimensions, English
 
 **Indonesian Language Models:**
 - `asmud/cahya-indonesian-ner-tuned` (default) - Indonesian BERT base model
@@ -246,21 +246,17 @@ SIMILARITY_THRESHOLD=0.4           # Minimum similarity score (lowered for Indon
 KG_UPDATE_INTERVAL=300             # Update interval (seconds)
 KG_BATCH_SIZE=100                  # Batch processing size
 
-# Indonesian Processing Features
-ENABLE_CORRUPTION_DETECTION=true   # Detect and filter garbled text
-ENABLE_REGULATION_PATTERN_DETECTION=true  # Detect Indonesian regulation patterns
-ENABLE_SEMANTIC_CHUNKING=true      # Use document structure-aware chunking
-HEADER_PRIORITY_BOOST=1.3          # Similarity boost for document headers
+# Processing Features (Note: Advanced features are built-in and not configurable)
+# Document structure and corruption handling is handled automatically
 ```
 
 **Parameter Tuning for Indonesian Documents:**
 
 - **CHUNK_SIZE**: 256 chars optimized for Indonesian regulations (balance of context vs precision)
 - **TOP_K**: 5 chunks recommended for Indonesian content (quality over quantity)
-- **SIMILARITY_THRESHOLD**: 0.4 for Indonesian (lower due to language complexity)
+- **SIMILARITY_THRESHOLD**: 0.2 for Indonesian (lower due to language complexity)
 - **TEMPERATURE**: 0.7 for balanced creativity and accuracy
-- **HEADER_PRIORITY_BOOST**: 1.3x boost ensures document titles/headers rank higher
-- **Corruption Detection**: Essential for OCR-processed Indonesian government PDFs
+- **Processing**: Built-in Indonesian text processing and OCR handling
 
 ### API Configuration
 
@@ -274,8 +270,8 @@ MAX_UPLOAD_SIZE=100MB              # Maximum file upload size
 RATE_LIMIT_PER_MINUTE=60          # API rate limiting
 
 # Security (Production)
-SECRET_KEY=your-secret-key-here    # JWT secret key
-ACCESS_TOKEN_EXPIRE_MINUTES=30     # Token expiration
+# Note: Authentication not yet implemented
+# CORS_ORIGINS=https://example.com    # Restrict origins in production
 ```
 
 ### Data Paths
@@ -328,7 +324,7 @@ DEBUG=false
 LOG_LEVEL=INFO
 POSTGRES_SSLMODE=require
 SECRET_KEY=complex-production-secret
-CORS_ORIGINS=https://your-domain.com
+CORS_ORIGINS=https://example.com
 RATE_LIMIT_PER_MINUTE=30
 ```
 
@@ -468,7 +464,7 @@ print(json.dumps(config_dict, indent=2, default=str))
 SECRET_KEY=$(openssl rand -base64 32)
 
 # Restricted CORS
-CORS_ORIGINS=https://your-app.com,https://admin.your-app.com
+CORS_ORIGINS=https://app.example.com,https://admin.example.com
 
 # SSL enforcement
 POSTGRES_SSLMODE=require

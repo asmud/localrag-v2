@@ -30,16 +30,20 @@ LocalRAG uses PostgreSQL as the primary database with pgvector extension for emb
 
 ```bash
 # Check database health and extensions
-python utils/migrate.py health
+python utils/postgres_migrate.py health
 
 # View migration status
-python utils/migrate.py status
+python utils/postgres_migrate.py status
 
 # Run all pending migrations
-python utils/migrate.py migrate
+python utils/postgres_migrate.py migrate
 
 # Create new migration file
-python utils/migrate.py create migration_name
+python utils/postgres_migrate.py create migration_name
+
+# For Neo4j migrations
+python utils/neo4j_migrate.py status
+python utils/neo4j_migrate.py migrate
 ```
 
 ### Manual Migration (For Initial Setup)
@@ -47,12 +51,17 @@ python utils/migrate.py create migration_name
 Use this when LocalRAG configuration is not available or during initial setup:
 
 ```bash
-# Run migrations with manual database connection
-python utils/migrate.py migrate-manual \
+# Run PostgreSQL migrations with manual database connection
+python utils/postgres_migrate.py migrate-manual \
   --host=localhost \
   --port=5432 \
-  --database=local_rag \
-  --user=your_user
+  --database=localrag \
+  --user=localrag
+
+# Run Neo4j migrations with manual connection
+python utils/neo4j_migrate.py migrate-manual \
+  --uri=bolt://localhost:7687 \
+  --user=neo4j
 # Password will be prompted securely
 ```
 
@@ -60,14 +69,14 @@ python utils/migrate.py migrate-manual \
 
 ```bash
 # From within running LocalRAG container
-docker exec localrag-localrag-1 python utils/migrate.py migrate
+docker exec localrag-localrag-1 python utils/postgres_migrate.py migrate
 
 # Or run migration tool directly
 docker run --rm -it \
   --network=host \
   -v $(pwd):/app \
   localrag:latest \
-  python utils/migrate.py migrate-manual --host=localhost --database=local_rag --user=your_user
+  python utils/migrate.py migrate-manual --host=localhost --database=localrag --user=localrag
 ```
 
 ## Migration Files
@@ -81,15 +90,30 @@ docker run --rm -it \
    - Processing jobs for background tasks
    - All indexes and triggers
 
-2. **002_adapt_existing_schema.sql** - Schema adaptation
-   - Adds missing columns to existing tables
-   - Creates tables if they don't exist
-   - Handles existing data migration
+2. **002_job_tracking_schema.sql** - Background job processing
+   - Processing jobs table with status tracking
+   - Job metadata and error handling
+   - Performance monitoring
 
-3. **003_simple_adaptation.sql** - Simple additions
-   - Basic column additions
-   - Index creation
-   - Backward compatibility
+3. **003_fix_processing_jobs_schema.sql** - Job schema fixes
+   - Status constraint fixes
+   - Index optimizations
+   - Data integrity improvements
+
+4. **004_chat_threading.sql** - Chat system enhancements
+   - Message threading support
+   - Session management improvements
+   - Conversation history tracking
+
+5. **005_fix_job_status_constraint.sql** - Job status validation
+   - Enhanced status constraints
+   - Better error handling
+   - Status transition validation
+
+6. **006_foundation.cypher** - Neo4j knowledge graph setup
+   - Initial graph schema
+   - Indonesian entity constraints
+   - Relationship definitions
 
 ### Schema Created
 
@@ -182,7 +206,7 @@ permission denied to create extension "vector"
 ```sql
 -- As superuser
 CREATE EXTENSION IF NOT EXISTS vector;
-GRANT USAGE ON SCHEMA public TO your_user;
+GRANT USAGE ON SCHEMA public TO localrag;
 ```
 
 #### 4. SSL Connection Issues

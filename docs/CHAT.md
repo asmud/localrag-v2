@@ -6,7 +6,7 @@ The LocalRAG chat system combines local models for document retrieval with LLM i
 
 ## Architecture Components
 
-- **Local Models**: Handle embeddings (`intfloat/multilingual-e5-base`), Indonesian text processing (`aadhistii/IndoBERT-NER`), and context extraction
+- **Local Models**: Handle embeddings (`sentence-transformers/paraphrase-multilingual-mpnet-base-v2`), Indonesian text processing (`asmud/cahya-indonesian-ner-tuned`), and context extraction
 - **Enhanced RAG Engine**: Multi-factor similarity scoring, Indonesian regulation pattern detection, query enhancement
 - **Indonesian Knowledge Graph**: Specialized processing for Indonesian government documents with entity validation
 - **LLM Integration**: Multi-provider support (OpenRouter/Gemini, OpenAI, Anthropic, Ollama) with intelligent fallback
@@ -309,14 +309,14 @@ ENABLE_LLM_CHAT=false
 ### Enhanced RAG Configuration
 ```bash
 # Local model settings (always used for retrieval)
-EMBEDDING_MODEL=intfloat/multilingual-e5-base     # Multilingual embeddings
-EXTRACTION_MODEL=aadhistii/IndoBERT-NER           # Indonesian NER model
+EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-mpnet-base-v2  # Current embedding model
+EXTRACTION_MODEL=asmud/cahya-indonesian-ner-tuned  # Indonesian NER model
 AUTO_DOWNLOAD_MODELS=true
 HF_TOKEN=your_huggingface_token                   # Required for some Indonesian models
 
 # Enhanced retrieval settings
 TOP_K=5                                           # Quality over quantity
-SIMILARITY_THRESHOLD=0.4                         # Lowered for Indonesian complexity
+SIMILARITY_THRESHOLD=0.2                         # Current setting (lowered for Indonesian complexity)
 CHUNK_SIZE=256                                    # Optimized for Indonesian regulations
 CHUNK_OVERLAP=64                                  # Balanced overlap
 

@@ -67,7 +67,7 @@ LLM_FALLBACK_TO_EXTRACTIVE=true               # Fallback to extractive on LLM fa
 # Provider Settings
 LLM_PROVIDER=openai                            # Provider type
 LLM_MODEL=google/gemini-2.0-flash-exp:free    # Model identifier
-LLM_API_KEY=sk-or-v1-your-key                 # API key
+LLM_API_KEY=sk-or-v1-xxx...your-openrouter-key   # API key
 LLM_ENDPOINT=https://openrouter.ai/api/v1     # API endpoint (optional)
 
 # Generation Parameters

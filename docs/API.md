@@ -32,8 +32,8 @@ GET /health
     "redis": true
   },
   "models": {
-    "embedding_model": "intfloat/multilingual-e5-base",
-    "extraction_model": "aadhistii/IndoBERT-NER",
+    "embedding_model": "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+    "extraction_model": "asmud/cahya-indonesian-ner-tuned",
     "device": "cpu",
     "models_path": "models",
     "embedding_model_loaded": true,
@@ -72,27 +72,12 @@ Check AI models loading status.
 GET /health/models
 ```
 
-### LLM Service Health
+### Background Workers Health
 
-Check LLM service status and provider availability.
+Check background worker status and processing queue.
 
 ```http
-GET /health/llm
-```
-
-**Response:**
-```json
-{
-  "llm_service": {
-    "enabled": true,
-    "provider": "openai",
-    "model": "google/gemini-2.0-flash-exp:free",
-    "endpoint": "https://openrouter.ai/api/v1",
-    "available": true,
-    "streaming_enabled": true,
-    "fallback_enabled": true
-  }
-}
+GET /health/workers
 ```
 
 ### Background Workers Health

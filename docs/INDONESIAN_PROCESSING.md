@@ -100,50 +100,34 @@ if self._is_indonesian_content(raw_text):
     enhanced_processing = True
 ```
 
-**Corruption Detection:**
+**Built-in OCR Processing:**
 ```python
-# Detect garbled patterns
-patterns = [
-    r'^\s*([A-Z]\s){8,}',           # "U M A R G O R P..."
-    r'([A-Z]\s){10,}',              # Excessive spaced letters
-    r'(MARGORP|NATAIGEK|BUSNATAI)'  # Reversed Indonesian words
-]
-
-# Filter corrupted chunks
-if self._is_corrupted_text(chunk):
-    logger.warning(f"Filtered corrupted chunk: {chunk[:50]}...")
-    continue
+# OCR processing is automatically handled by the enhanced_ocr module
+# Current configuration from .env:
+# OCR_ENGINE=easyocr
+# OCR_LANGUAGES=["en","id"]
+# OCR_CONFIDENCE_THRESHOLD=0.4
+# OCR_ENABLE_POSTPROCESSING=true
 ```
 
 ### 3. Semantic Chunking
 
-**Document Structure Recognition:**
+**Automatic Document Processing:**
 ```python
-# Create high-priority header chunk
-header_chunk = {
-    "content": document_beginning[:669],  # First 669 characters
-    "metadata": {
-        "section_type": "document_header",
-        "priority": "high",
-        "contains_title": True
-    }
-}
-
-# Apply section labeling
-chunk_metadata = {
-    "section_type": "content|introduction|appendix",
-    "content_type": "heading|paragraph|list|table",
-    "priority": "high|medium|low"
-}
+# Document chunking is handled automatically by the ingestion system
+# Current configuration from .env:
+# CHUNK_SIZE=256
+# CHUNK_OVERLAP=64
+# MAX_CHUNK_CHARACTERS=7000
+# Document structure is automatically detected during processing
 ```
 
-**Regulation Pattern Detection:**
+**Indonesian Government Document Processing:**
 ```python
-# Detect formal regulation references
-pattern = r'PERATURAN MENTERI DALAM NEGERI.*NOMOR (\d+) TAHUN (\d{4})'
-if re.search(pattern, content):
-    chunk_metadata["regulation_reference"] = f"{number}/{year}"
-    chunk_metadata["priority"] = "high"
+# Indonesian regulation patterns are automatically handled
+# by the semantic analyzer and Indonesian KG manager
+# Text extraction uses: asmud/cahya-indonesian-ner-tuned
+# Processing includes automatic entity recognition
 ```
 
 ### 4. Enhanced Similarity Scoring

@@ -33,11 +33,11 @@ For rapid setup with all services:
 
 ```bash
 # Clone repository
-git clone https://github.com/your-org/localrag.git
-cd localrag
+git clone https://github.com/asmud/localrag-v2.git
+cd localrag-v2
 
-# Run quick setup script
-./quick-start.sh
+# Start services with Docker Compose
+docker-compose up -d
 ```
 
 This will:
@@ -53,8 +53,8 @@ For containerized deployment:
 
 ```bash
 # Clone and configure
-git clone https://github.com/your-org/localrag.git
-cd localrag
+git clone https://github.com/asmud/localrag-v2.git
+cd localrag-v2
 
 # Copy and edit configuration
 cp .env.example .env
@@ -66,8 +66,8 @@ docker-compose up -d
 # Run database migrations
 python utils/migrate.py migrate-manual \
   --host=localhost \
-  --database=local_rag \
-  --user=your_user
+  --database=localrag \
+  --user=localrag
 
 # Check system health
 curl http://localhost:8080/api/v1/health
@@ -79,8 +79,8 @@ For development with local Python environment:
 
 ```bash
 # Clone repository
-git clone https://github.com/your-org/localrag.git
-cd localrag
+git clone https://github.com/asmud/localrag-v2.git
+cd localrag-v2
 
 # Create virtual environment
 python -m venv venv
@@ -112,7 +112,7 @@ python api/main.py
 ```bash
 docker run -d \
   --name postgres \
-  -e POSTGRES_DB=local_rag \
+  -e POSTGRES_DB=localrag \
   -e POSTGRES_USER=localrag \
   -e POSTGRES_PASSWORD=localrag_password \
   -p 5432:5432 \
@@ -126,14 +126,14 @@ sudo apt update
 sudo apt install postgresql-16 postgresql-16-pgvector
 
 # Create database
-sudo -u postgres createdb local_rag
+sudo -u postgres createdb localrag
 sudo -u postgres createuser localrag
 sudo -u postgres psql -c "ALTER USER localrag PASSWORD 'localrag_password';"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE local_rag TO localrag;"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE localrag TO localrag;"
 
 # Enable extensions
-sudo -u postgres psql local_rag -c "CREATE EXTENSION IF NOT EXISTS vector;"
-sudo -u postgres psql local_rag -c "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
+sudo -u postgres psql localrag -c "CREATE EXTENSION IF NOT EXISTS vector;"
+sudo -u postgres psql localrag -c "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";"
 ```
 
 #### Neo4j
@@ -197,9 +197,9 @@ Key settings to update:
 ```bash
 # Database connections
 POSTGRES_HOST=localhost        # or container IP
-POSTGRES_USER=your_user
+POSTGRES_USER=localrag
 POSTGRES_PASSWORD=your_password
-POSTGRES_DB=local_rag
+POSTGRES_DB=localrag
 
 # Neo4j
 NEO4J_URI=bolt://localhost:7687
@@ -236,7 +236,7 @@ python utils/migrate.py migrate
 # For manual setup (initial installation)
 python utils/migrate.py migrate-manual \
   --host=localhost \
-  --database=local_rag \
+  --database=localrag \
   --user=localrag
 ```
 
@@ -244,10 +244,10 @@ python utils/migrate.py migrate-manual \
 
 ```bash
 # Check database tables
-docker exec postgres psql -U localrag -d local_rag -c "\dt"
+docker exec postgres psql -U postgres -d local_rag -c "\dt"
 
 # Verify vector extension
-docker exec postgres psql -U localrag -d local_rag -c "SELECT extname FROM pg_extension WHERE extname = 'vector';"
+docker exec postgres psql -U postgres -d local_rag -c "SELECT extname FROM pg_extension WHERE extname = 'vector';"
 
 # Check migration status
 python utils/migrate.py status
@@ -289,11 +289,11 @@ model.save('./models/embedding/')
 Configure models in `.env`:
 
 ```bash
-# Embedding model (768 dimensions, multilingual support)
-EMBEDDING_MODEL=intfloat/multilingual-e5-base
+# Embedding model (768 dimensions, multilingual support) - Current setting
+EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-mpnet-base-v2
 
 # Indonesian text extraction model (optimized for Indonesian NER)
-EXTRACTION_MODEL=aadhistii/IndoBERT-NER
+EXTRACTION_MODEL=asmud/cahya-indonesian-ner-tuned
 
 # Model storage path
 MODELS_PATH=./models
@@ -315,13 +315,12 @@ LLM_ENDPOINT=https://openrouter.ai/api/v1
 **Supported Models:**
 
 *Embedding Models:*
-- `intfloat/multilingual-e5-base` (default) - Multilingual, 768 dimensions
+- `sentence-transformers/paraphrase-multilingual-mpnet-base-v2` (current) - Multilingual, 768 dimensions
+- `intfloat/multilingual-e5-base` - Multilingual, 768 dimensions
 - `sentence-transformers/all-MiniLM-L6-v2` - English only, 384 dimensions
-- `sentence-transformers/all-mpnet-base-v2` - English only, 768 dimensions
 
 *Indonesian Language Models:*
-- `aadhistii/IndoBERT-NER` (default) - Indonesian NER and text extraction
-- `asmud/cahya-indonesian-ner-tuned` - Base Indonesian BERT model
+- `asmud/cahya-indonesian-ner-tuned` (default) - Indonesian NER and text extraction
 - `cahya/bert-base-indonesian-522M` - Large Indonesian BERT (522M parameters)
 
 ## Development Environment
@@ -484,7 +483,7 @@ curl -X POST \
 # Verify OpenRouter connection (if using)
 python -c "
 import requests
-headers = {'Authorization': 'Bearer sk-or-v1-your-key-here'}
+headers = {'Authorization': 'Bearer sk-or-v1-xxx...your-openrouter-key'}
 response = requests.get('https://openrouter.ai/api/v1/models', headers=headers)
 print('OpenRouter connection:', response.status_code == 200)
 "
@@ -517,7 +516,7 @@ Once running, access interactive documentation:
    docker ps | grep postgres
    
    # Test connection
-   psql -h localhost -U localrag -d local_rag
+   psql -h localhost -U postgres -d local_rag
    ```
 
 3. **Models Not Loading**
@@ -555,7 +554,7 @@ Once running, access interactive documentation:
    # Check Indonesian model loading
    python -c "
    from transformers import AutoTokenizer
-   tokenizer = AutoTokenizer.from_pretrained('aadhistii/IndoBERT-NER')
+   tokenizer = AutoTokenizer.from_pretrained('asmud/cahya-indonesian-ner-tuned')
    print('Indonesian model loaded successfully')
    "
    
@@ -600,7 +599,7 @@ docker stats
 curl -w "@curl-format.txt" -s -o /dev/null http://localhost:8080/api/v1/health
 
 # Database performance
-docker exec postgres psql -U localrag -d local_rag -c "
+docker exec postgres psql -U postgres -d local_rag -c "
 SELECT query, calls, total_time, mean_time 
 FROM pg_stat_statements 
 ORDER BY total_time DESC LIMIT 5;
